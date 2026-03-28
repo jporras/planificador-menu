@@ -1,0 +1,57 @@
+﻿services:
+  oracle:
+    build:
+      context: ./oracle
+      dockerfile: Dockerfile
+    container_name: planificador-oracle
+    env_file:
+      - ./oracle/.env
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: planificador-backend
+    env_file:
+      - ./backend/.env
+    expose:
+      - "8080"
+    depends_on:
+      oracle:
+        condition: service_healthy
+    restart: on-failure
+
+  kong:
+    build:
+      context: ./kong
+      dockerfile: Dockerfile
+    container_name: planificador-kong
+    env_file:
+      - ./kong/.env
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: planificador-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - kong
+
+volumes:
+  oracle-data:

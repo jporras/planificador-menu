@@ -14,7 +14,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = '/api';
   private readonly familiaId = 1;
 
   getRecetas(): Observable<RecetaResumen[]> {
@@ -41,4 +41,3 @@ export class ApiService {
     return this.http.post<ConfirmacionResultado>(`${this.baseUrl}/plan-comidas/${planComidaId}/confirmaciones`, payload);
   }
 }
-
